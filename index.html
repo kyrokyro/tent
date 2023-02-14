@@ -1,182 +1,392 @@
 
-
 <!DOCTYPE html>
-<html lang="en" >
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <link rel="apple-touch-icon" type="image/png" href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png" />
-
-    <meta name="apple-mobile-web-app-title" content="CodePen">
-
-    <link rel="shortcut icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico" />
-
-    <link rel="mask-icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-b4b4269c16397ad2f0f7a01bcdf513a1994f4c94b8af2f191c09eb0d601762b1.svg" color="#111" />
-
-
-
-    <title>CodePen - Muuri: images inside grid items</title>
-
-
-
-
-    <style>
-        .grid {
-            position: relative;
-            opacity: 0;
-            transition: opacity 0.8s linear 1s;
-        }
-
-        .images-loaded .grid {
-            opacity: 1;
-        }
-
-        .item {
-            position: absolute;
-            margin: 5px;
-            z-index: 1;
-        }
-
-        .item.muuri-item-hidden {
-            z-index: 0;
-        }
-
-        .item.muuri-item-releasing {
-            z-index: 2;
-        }
-
-        .item.muuri-item-dragging {
-            z-index: 3;
-        }
-
-        .item-content {
-            position: relative;
-            cursor: pointer;
-        }
-
-        .item-content>img {
-            display: block;
-            border-radius: 6px;
-        }
-
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            text-transform: uppercase;
-            transition: opacity 0.6s linear 0.4s;
-        }
-
-        .images-loaded .loading {
-            opacity: 0;
-        }
-    </style>
-
-    <script>
-        window.console = window.console || function(t) {};
-    </script>
-
-
-
-    <script>
-        if (document.location.search.match(/type=embed/gi)) {
-            window.parent.postMessage("resize", "*");
-        }
-    </script>
-
-
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Muuri - Infinite layouts with batteries included</title>
+    <meta name="description" content="Muuri is a JavaScript library that creates responsive, sortable, filterable and draggable grid layouts." />
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="author" content="Niklas Rämö" />
+    <link rel="icon" type="image/svg+xml" href="muuri-icon.svg" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Fira+Sans:400,300,300italic,400italic,500,500italic,700,700italic" />
+    <link rel="stylesheet" href="https://muuri.dev/css/main.css?v103" />
+    <link rel="stylesheet" href="https://muuri.dev/css/demo-grid.css?v103" />
+    <link rel="stylesheet" href="https://muuri.dev/css/demo-kanban.css?v103" />
 </head>
 
-<body translate="no">
-    <div class="loading">
-        Loading images...
-    </div>
-    <div class="grid">
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/195/400/any?1" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/400/195/any?2" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/195/400/any?3" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/400/195/any?4" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/195/400/any?5" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/400/195/any?6" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/195/400/any?7" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/400/195/any?8" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/195/400/any?9" />
-            </div>
-        </div>
-        <div class="item">
-            <div class="item-content">
-                <img src="https://placeimg.com/400/195/any?10" />
-            </div>
-        </div>
-    </div>
-    <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-2c7831bb44f98c1391d6a4ffda0e1fd302503391ca806e7fcc7b9b87197aec26.js"></script>
+<body>
+    <script>
+        (function() {
+            let addressBarHeight = computeAddressBarHeight();
+            document.documentElement.style.setProperty('--addressBarHeight', `${addressBarHeight}px`);
 
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/web-animations/2.3.2/web-animations.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/gh/haltu/muuri@0.9.5/dist/muuri.min.js'></script>
-    <script id="rendered-js">
-        var grid = new Muuri('.grid', {
-            dragEnabled: true,
-            layout: {
-                fillGaps: true
+            function computeAddressBarHeight() {
+                const div = document.createElement('div');
+                Object.assign(div.style, {
+                    height: '100vh',
+                    position: 'fixed'
+                });
+                document.body.appendChild(div);
+                const size = Math.max(div.getBoundingClientRect().height - window.innerHeight, 0);
+                document.body.removeChild(div);
+                return size;
             }
-        });
-
-
-
-        // When all items have loaded refresh their
-        // dimensions and layout the grid.
-        window.addEventListener('load', function() {
-            grid.refreshItems().layout();
-            // For a little finishing touch, let's fade in
-            // the images after all them have loaded and
-            // they are corrertly positioned.
-            document.body.classList.add('images-loaded');
-        });
-        //# sourceURL=pen.js
+        })();
     </script>
 
+    <div class="drag-container"></div>
+
+    <section class="grid-demo">
+        <h2 class="section-title"><span>Grid Demo</span></h2>
+
+        <div class="demo">
+            <div class="grid-controls">
+                <div class="grid-control search">
+                    <input class="grid-control-field search-field form-control" type="text" name="search" placeholder="Search..." />
+                    <div class="grid-control-icon">
+                        <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="grid-control filter">
+                    <select class="grid-control-field filter-field form-control">
+                        <option value="" selected>All</option>
+                        <option value="red">Red</option>
+                        <option value="blue">Blue</option>
+                        <option value="green">Green</option>
+                    </select>
+                    <div class="grid-control-icon">
+                        <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path fill="currentColor" d="M463.952 0H48.057C5.419 0-16.094 51.731 14.116 81.941L176 243.882V416c0 15.108 7.113 29.335 19.2 40l64 47.066c31.273 21.855 76.8 1.538 76.8-38.4V243.882L497.893 81.941C528.042 51.792 506.675 0 463.952 0zM288 224v240l-64-48V224L48 48h416L288 224z"></path>
+                        </svg>
+                    </div>
+                    <div class="grid-select-arrow">
+                        <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512">
+                            <path fill="currentColor" d="M119.5 326.9L3.5 209.1c-4.7-4.7-4.7-12.3 0-17l7.1-7.1c4.7-4.7 12.3-4.7 17 0L128 287.3l100.4-102.2c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L136.5 327c-4.7 4.6-12.3 4.6-17-.1z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="grid-control sort">
+                    <select class="grid-control-field sort-field form-control">
+                        <option value="order" selected>Drag</option>
+                        <option value="title">Title (drag disabled)</option>
+                        <option value="color">Color (drag disabled)</option>
+                    </select>
+                    <div class="grid-control-icon">
+                        <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path fill="currentColor" d="M244 192h184a20 20 0 0 0 20-20V52a20 20 0 0 0-20-20H244a20 20 0 0 0-20 20v120a20 20 0 0 0 20 20zm28-112h128v64H272zm212 176H252a28 28 0 0 0-28 28v168a28 28 0 0 0 28 28h232a28 28 0 0 0 28-28V284a28 28 0 0 0-28-28zm-20 176H272V304h192zm-300-48h-44V48a16 16 0 0 0-16-16H88a16 16 0 0 0-16 16v336H28a12 12 0 0 0-8.73 20.24l68 72a12 12 0 0 0 17.44 0l68-72A12 12 0 0 0 164 384z"></path>
+                        </svg>
+                    </div>
+                    <div class="grid-select-arrow">
+                        <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512">
+                            <path fill="currentColor" d="M119.5 326.9L3.5 209.1c-4.7-4.7-4.7-12.3 0-17l7.1-7.1c4.7-4.7 12.3-4.7 17 0L128 287.3l100.4-102.2c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L136.5 327c-4.7 4.6-12.3 4.6-17-.1z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="grid-control layout">
+                    <select class="grid-control-field layout-field form-control">
+                        <option value="left-top" selected>Left Top</option>
+                        <option value="left-top-fillgaps">Left Top (fill gaps)</option>
+                        <option value="right-top">Right Top</option>
+                        <option value="right-top-fillgaps">Right Top (fill gaps)</option>
+                        <option value="left-bottom">Left Bottom</option>
+                        <option value="left-bottom-fillgaps">Left Bottom (fill gaps)</option>
+                        <option value="right-bottom">Right Bottom</option>
+                        <option value="right-bottom-fillgaps">Right Bottom (fill gaps)</option>
+                    </select>
+                    <div class="grid-control-icon">
+                        <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                            <path fill="currentColor" d="M480 0H32A32 32 0 0 0 0 32v448a32 32 0 0 0 32 32h448a32 32 0 0 0 32-32V32a32 32 0 0 0-32-32zm-16 464H48V48h416zm-48-48V256H256v160zM256 96H96v160h160z"></path>
+                        </svg>
+                    </div>
+                    <div class="grid-select-arrow">
+                        <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512">
+                            <path fill="currentColor" d="M119.5 326.9L3.5 209.1c-4.7-4.7-4.7-12.3 0-17l7.1-7.1c4.7-4.7 12.3-4.7 17 0L128 287.3l100.4-102.2c4.7-4.7 12.3-4.7 17 0l7.1 7.1c4.7 4.7 4.7 12.3 0 17L136.5 327c-4.7 4.6-12.3 4.6-17-.1z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid"></div>
+
+            <template class="grid-item-template">
+                <div class="grid-item">
+                    <div class="grid-item-content">
+                        <div class="grid-card">
+                            <div class="grid-card-title"></div>
+                            <div class="grid-card-handle"></div>
+                            <div class="grid-card-remove">
+                                <svg class="board-item-action-icon icon-delete" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                                    <path fill="currentColor" d="M439.15 453.06L297.17 384l141.99-69.06c7.9-3.95 11.11-13.56 7.15-21.46L432 264.85c-3.95-7.9-13.56-11.11-21.47-7.16L224 348.41 37.47 257.69c-7.9-3.95-17.51-.75-21.47 7.16L1.69 293.48c-3.95 7.9-.75 17.51 7.15 21.46L150.83 384 8.85 453.06c-7.9 3.95-11.11 13.56-7.15 21.47l14.31 28.63c3.95 7.9 13.56 11.11 21.47 7.15L224 419.59l186.53 90.72c7.9 3.95 17.51.75 21.47-7.15l14.31-28.63c3.95-7.91.74-17.52-7.16-21.47zM150 237.28l-5.48 25.87c-2.67 12.62 5.42 24.85 16.45 24.85h126.08c11.03 0 19.12-12.23 16.45-24.85l-5.5-25.87c41.78-22.41 70-62.75 70-109.28C368 57.31 303.53 0 224 0S80 57.31 80 128c0 46.53 28.22 86.87 70 109.28zM280 112c17.65 0 32 14.35 32 32s-14.35 32-32 32-32-14.35-32-32 14.35-32 32-32zm-112 0c17.65 0 32 14.35 32 32s-14.35 32-32 32-32-14.35-32-32 14.35-32 32-32z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <div class="grid-footer">
+                <button class="grid-button add-more-items">
+                    <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+                        <path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </section>
 
 
+    <script src="https://cdn.jsdelivr.net/npm/web-animations-js@2.3.2/web-animations.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/haltu/muuri@0.9.3/dist/muuri.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dragContainer = document.querySelector('.drag-container');
+            const gridElement = document.querySelector('.grid');
+            const filterField = document.querySelector('.grid-control-field.filter-field');
+            const searchField = document.querySelector('.grid-control-field.search-field');
+            const sortField = document.querySelector('.grid-control-field.sort-field');
+            const layoutField = document.querySelector('.grid-control-field.layout-field');
+            const addButton = document.querySelector('.grid-button.add-more-items');
+            const itemTemplate = document.querySelector('.grid-item-template');
+            const characters = 'abcdefghijklmnopqrstuvwxyz';
+            const colors = ['red', 'blue', 'green'];
+
+            let dragOrder = [];
+            let sortFieldValue;
+            let searchFieldValue;
+
+            //
+            // GRID
+            //
+
+            const grid = new Muuri(gridElement, {
+                items: createItemElements(20),
+                showDuration: 400,
+                showEasing: 'ease',
+                hideDuration: 400,
+                hideEasing: 'ease',
+                layoutDuration: 400,
+                layoutEasing: 'cubic-bezier(0.625, 0.225, 0.100, 0.890)',
+                sortData: {
+                    title(item, element) {
+                        return element.getAttribute('data-title') || '';
+                    },
+                    color(item, element) {
+                        return element.getAttribute('data-color') || '';
+                    },
+                },
+                dragEnabled: true,
+                dragHandle: '.grid-card-handle',
+                dragContainer: dragContainer,
+                dragRelease: {
+                    duration: 300,
+                    easing: 'cubic-bezier(0.625, 0.225, 0.100, 0.890)',
+                    useDragContainer: true,
+                },
+                dragPlaceholder: {
+                    enabled: false,
+                    createElement(item) {
+                        return item.getElement().cloneNode(true);
+                    },
+                },
+                dragAutoScroll: {
+                    targets: [window],
+                    sortDuringScroll: false,
+                    syncAfterScroll: false,
+                },
+            });
+
+            window.grid = grid;
+
+            //
+            // Grid helper functions
+            //
+
+            function initDemo() {
+                // Reset field values.
+                searchField.value = '';
+                [sortField, filterField, layoutField].forEach((field) => {
+                    field.value = field.querySelectorAll('option')[0].value;
+                });
+
+                // Set inital search query, active filter, active sort value and active layout.
+                searchFieldValue = searchField.value.toLowerCase();
+                sortFieldValue = sortField.value;
+
+                updateDragState();
+
+                // Search field binding.
+                searchField.addEventListener('keyup', function() {
+                    var newSearch = searchField.value.toLowerCase();
+                    if (searchFieldValue !== newSearch) {
+                        searchFieldValue = newSearch;
+                        filter();
+                    }
+                });
+
+                // Filter, sort and layout bindings.
+                filterField.addEventListener('change', filter);
+                sortField.addEventListener('change', sort);
+                layoutField.addEventListener('change', updateLayout);
+
+                // Add/remove items bindings.
+                addButton.addEventListener('click', addItems);
+                gridElement.addEventListener('click', (e) => {
+                    if (e.target.matches('.grid-card-remove')) {
+                        removeItem(grid.getItem(e.target.closest('.grid-item')));
+                    }
+                });
+            }
+
+            function filter(onFinish = null) {
+                const filterFieldValue = filterField.value;
+                grid.filter(
+                    (item) => {
+                        const element = item.getElement();
+                        const isSearchMatch = !searchFieldValue ||
+                            (element.getAttribute('data-title') || '').toLowerCase().indexOf(searchFieldValue) > -1;
+                        const isFilterMatch = !filterFieldValue || filterFieldValue === element.getAttribute('data-color');
+                        return isSearchMatch && isFilterMatch;
+                    }, {
+                        onFinish: onFinish
+                    }
+                );
+            }
+
+            function sort() {
+                var currentSort = sortField.value;
+                if (sortFieldValue === currentSort) return;
+
+                updateDragState();
+
+                // If we are changing from "order" sorting to something else
+                // let's store the drag order.
+                if (sortFieldValue === 'order') {
+                    dragOrder = grid.getItems();
+                }
+
+                // Sort the items.
+                grid.sort(
+                    currentSort === 'title' ? 'title' : currentSort === 'color' ? 'color title' : dragOrder
+                );
+
+                // Update active sort value.
+                sortFieldValue = currentSort;
+            }
+
+            let addEffectTimeout = null;
+
+            function addItems() {
+                addButton.classList.add('processing');
+
+                const items = grid.add(createItemElements(5), {
+                    layout: false,
+                    active: false,
+                });
+
+                if (sortFieldValue !== 'order') {
+                    grid.sort(sortFieldValue === 'title' ? 'title' : 'color title', {
+                        layout: false,
+                    });
+                    dragOrder = dragOrder.concat(items);
+                }
+
+                filter();
+
+                if (addEffectTimeout) clearTimeout(addEffectTimeout);
+                addEffectTimeout = setTimeout(() => {
+                    addEffectTimeout = null;
+                    addButton.classList.remove('processing');
+                }, 250);
+            }
+
+            function removeItem(item) {
+                if (!item) return;
+
+                grid.hide([item], {
+                    onFinish: () => {
+                        grid.remove(item, {
+                            removeElements: true
+                        });
+                        if (sortFieldValue !== 'order') {
+                            const itemIndex = dragOrder.indexOf(item);
+                            if (itemIndex > -1) dragOrder.splice(itemIndex, 1);
+                        }
+                    },
+                });
+            }
+
+            function updateLayout() {
+                const {
+                    layout
+                } = grid._settings;
+                const val = layoutField.value;
+                layout.alignRight = val.indexOf('right') > -1;
+                layout.alignBottom = val.indexOf('bottom') > -1;
+                layout.fillGaps = val.indexOf('fillgaps') > -1;
+                grid.layout();
+            }
+
+            function updateDragState() {
+                if (sortField.value === 'order') {
+                    gridElement.classList.add('drag-enabled');
+                } else {
+                    gridElement.classList.remove('drag-enabled');
+                }
+            }
+
+            //
+            // Generic helper functions
+            //
+
+            function createItemElements(amount) {
+                const elements = [];
+                for (let i = 0; i < amount; i++) {
+                    elements.push(createItemElement());
+                }
+                return elements;
+            }
+
+            function createItemElement() {
+                const title = getRandomWord(2);
+                const color = getRandomItem(colors);
+                const width = getRandomInt(1, 2);
+                const height = getRandomInt(1, 2);
+                const itemElem = document.importNode(itemTemplate.content.children[0], true);
+
+                itemElem.classList.add('h' + height, 'w' + width, color);
+                itemElem.setAttribute('data-color', color);
+                itemElem.setAttribute('data-title', title);
+                itemElem.querySelector('.grid-card-title').innerHTML = title;
+
+                return itemElem;
+            }
+
+            function getRandomItem(collection) {
+                return collection[Math.floor(Math.random() * collection.length)];
+            }
+
+            // https://stackoverflow.com/a/7228322
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1) + min);
+            }
+
+            function getRandomWord(length) {
+                var ret = '';
+                for (var i = 0; i < length; i++) {
+                    ret += getRandomItem(characters);
+                }
+                return ret;
+            }
+
+            //
+            // Fire it up!
+            //
+
+            initDemo();
+        });
+    </script>
 </body></html>
- 
