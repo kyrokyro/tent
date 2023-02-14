@@ -38,8 +38,6 @@
     <div class="drag-container"></div>
 
     <section class="grid-demo">
-        <h2 class="section-title"><span>Grid Demo</span></h2>
-
         <div class="demo">
             <div class="grid-controls">
                 <div class="grid-control search">
@@ -163,7 +161,7 @@
             //
 
             const grid = new Muuri(gridElement, {
-                items: createItemElements(20),
+                items: createItemElements(5),
                 showDuration: 400,
                 showEasing: 'ease',
                 hideDuration: 400,
@@ -196,6 +194,18 @@
                     targets: [window],
                     sortDuringScroll: false,
                     syncAfterScroll: false,
+                },
+                dragSortPredicate: {
+                    threshold: 50,
+                    action: 'move',
+                    migrateAction: 'move'
+                },
+                horizontal: false,
+                rounding: false,
+                dragSortHeuristics: {
+                    sortInterval: 50,
+                    minDragDistance: 10,
+                    minBounceBackAngle: 1
                 },
             });
 
